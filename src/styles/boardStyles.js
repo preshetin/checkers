@@ -26,5 +26,6 @@ export const checkerStyle = {
     left: "5%",
     cursor: "pointer",
     boxShadow: "inset 0 0 20px white",
-    opacity: ".9"
+    opacity: "99%",
+    transform: 'translate(0, 0)'
 };

@@ -1,5 +1,4 @@
-import React, { useContext } from "react";
-import { privateEncrypt } from "crypto";
+import React from "react";
 import { useDrop } from "react-dnd";
 
 const PlayableSquare = ({
@@ -7,17 +6,21 @@ const PlayableSquare = ({
   children,
   row,
   col,
-  board,
-  setBoard,
-  setLocation,
-  locations,
   highlighted,
-  moveCurr
+  moveCurr,
+  resetSquare,
+  resetHighlighted,
+  switchTurns
 }) => {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "checker",
     canDrop: () => highlighted == 1,
-    drop: (item, monitor) => moveCurr({ row, col }),
+    drop: (item, monitor) => {
+      moveCurr({ row, col })
+      resetSquare({ row, col })
+      resetHighlighted()
+      switchTurns()
+    },
     collect: (monitor, props) => ({
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop()

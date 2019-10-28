@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React from "react";
 import Checker from "./Checker";
 import PlayableSquare from "./PlayableSquare";
 import {
@@ -7,24 +7,6 @@ import {
   checkerStyle,
   BoardGrid
 } from "../styles/boardStyles";
-
-const calcLocations = board => {
-  let blackCounter = 0;
-  let redCounter = 0;
-  let locations = { red: {}, black: {} };
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      let squareState = initialBoard[row][col];
-      if (squareState > 0) {
-        const checkerColor = squareState == 1 ? "red" : "black";
-        locations[checkerColor][
-          checkerColor == "red" ? redCounter++ : blackCounter++
-        ] = [row, col];
-      }
-    }
-  }
-  return locations;
-};
 
 let initialBoard = [
   [-1, 1, -1, 1, -1, 1, -1, 1],
@@ -48,24 +30,33 @@ let makeHighlighted = () => [
   [0, 0, 0, 0, 0, 0, 0, 0]
 ];
 
-let initialLocations = calcLocations(initialBoard);
-
 class Board extends React.Component {
-  locations = initialLocations;
 
   state = {
     highlighted: makeHighlighted(),
     selectedColor: null,
     selectedRow: null,
     selectedCol: null,
+    currMove: "black",
     board: initialBoard
   };
+
+  switchTurns = ()=>{
+    if (this.state.currMove=="black"){
+      this.setState({
+        currMove: "red"
+      })
+    } else {
+      this.setState({
+        currMove: "black"
+      })
+    }
+  }
 
   setBoard = ({ val, row, col }) => {
     row = parseInt(row);
     col = parseInt(col);
     val = parseInt(val);
-    console.log(row, col, val);
     var newArray = [];
     for (var i = 0; i < this.state.board.length; i++) {
       newArray[i] = this.state.board[i].slice();
@@ -98,48 +89,73 @@ class Board extends React.Component {
     });
   };
 
-  resetSquare = ({ row, col }) => {
-    console.log("reset", row, col);
-    this.setBoard({ val: 0, row, col });
-    this.setState({ highlighted: makeHighlighted() });
+  resetSquare = () => {
+    this.setBoard({ val: 0, row: this.state.selectedRow, col: this.state.selectedCol });
   };
 
+  resetHiglighted = () =>{
+    this.setState({ highlighted: makeHighlighted() });
+  }
+
   showSquares = ({ color, counter, col, row }) => {
+    if (this.state.currMove!=color){
+      return
+    }
     this.setLocation({ color, counter, row, col });
     var newArray = [];
     for (var i = 0; i < this.state.highlighted.length; i++)
       newArray[i] = this.state.highlighted[i].slice();
-
-    const moves = this.validMove(color, row, col);
-    console.log(moves);
+    const moves = this.getMoves(color, row, col);
+    moves += this.getJumps(color,row,col)
     moves.forEach(move => {
       const [r, c] = move;
-      console.log(r, c);
       newArray[r][c] = 1;
     });
-
-    newArray[row][col] = 1;
     this.setState({ highlighted: newArray });
-    console.log(new Date());
   };
 
-  validMove = (color, row, col) => {
+  isInBounds = (r,c) => (
+    r >= 0 && c >= 0 && r < 8 && c < 8
+  ) 
+  
+  getMoves = (color, row, col) => {
     col = parseInt(col);
     row = parseInt(row);
-
     var moves = [];
-    var multiplier = 1;
-    if (color == "black") {
-      multiplier = -1;
-    }
-
+    const direction = color == "black"? -1 :1
     const rows = [-1, 1];
     rows.forEach(item => {
-      if (row >= 0 && col >= 0 && row < 8 && col < 8) {
-        moves.push([row + multiplier, col + item]);
+      if (this.isInBounds(row + direction,col+item)) {
+        if (this.state.board[row + direction][col + item]==0){
+          moves.push([row + direction, col + item]);
+        }
       }
     });
-    console.log(moves);
+    return moves;
+  };
+
+  getJumps = (color, row, col) => {
+    col = parseInt(col);
+    row = parseInt(row);
+    const direction = (color == "black") ? -1 : 1
+    const oponnent = (color =="black") ? 1:  2
+    const moves=[]
+    const dfsUtil=(row,col,direction)=>{
+      const jumps = [[direction,1],[direction,-1]]
+      jumps.forEach(jumped => {
+        const [r,c]=jumped
+        const [jRow,jCol]=[row+r,col+c]
+        const [lRow,lCol]=[row+r*2,col+c*2]
+        if (this.isInBounds(jRow,jCol) && this.state.board[jRow][jCol]==oponnent) {
+          if (this.isInBounds(lRow,lCol) && this.state.board[lRow][lCol]==0) {
+            moves.push([lRow, lCol]);
+            dfsUtil(lRow,lCol,direction)
+          }
+        }
+      })
+    }
+    dfsUtil(row,col,direction)
+    console.log(moves)
     return moves;
   };
 
@@ -164,12 +180,11 @@ class Board extends React.Component {
                 row={row}
                 col={col}
                 style={playableSquareStyle}
-                setBoard={this.setBoard}
-                board={this.board}
-                locations={this.locations}
-                setLocation={this.setLocation}
                 moveCurr={this.moveCurr}
                 highlighted={this.state.highlighted[row][col]}
+                resetSquare={this.resetSquare}
+                resetHighlighted={this.resetSquare}
+                switchTurns={this.switchTurns}
               >
                 {squareState > 0 ? (
                   <Checker
@@ -182,6 +197,8 @@ class Board extends React.Component {
                     col={col}
                     showSquares={this.showSquares}
                     resetSquare={this.resetSquare}
+                    resetHighlighted={this.resetHiglighted}
+                    currMove={this.state.currMove}
                   ></Checker>
                 ) : null}
               </PlayableSquare>

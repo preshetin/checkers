@@ -1,27 +1,24 @@
-import React, { useContext, useState } from "react";
-import { BoardContext } from "../context/BoardContext";
+import React from "react";
 import { useDrag } from "react-dnd";
 
 const Checker = ({
-  resetSquare,
+  resetHighlighted,
   color,
   style,
   counter,
   row,
   col,
-  showSquares
+  showSquares,
+  currMove
 }) => {
-  var started = false;
-
   const [{ isDragging }, drag] = useDrag({
-    item: { type: "checker", color, row, col },
+    item: { type: "checker"},
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
     begin: monitor => showSquares({ color, counter, col, row }),
-    end: monitor => resetSquare({ row, col })
+    end: monitor => resetHighlighted()
   });
-
   return (
     <div
       ref={drag}
@@ -34,5 +31,4 @@ const Checker = ({
     ></div>
   );
 };
-
 export default Checker;
