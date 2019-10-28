@@ -11,38 +11,22 @@ const PlayableSquare = ({
   setBoard,
   setLocation,
   locations,
-  highlighted
+  highlighted,
+  moveCurr
 }) => {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "checker",
-    canDrop: () => true, //canMoveChecker(x, y),
-    drop: () => true, //moveChecker(x, y),
-    collect: monitor => ({
+    canDrop: () => highlighted == 1,
+    drop: (item, monitor) => moveCurr({ row, col }),
+    collect: (monitor, props) => ({
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop()
     })
   });
-  // const drop = e => {
-  //   e.preventDefault();
-  //   const data = e.dataTransfer.getData("transfer");
-  //   e.target.appendChild(document.getElementById(data));
-  //   const color = e.dataTransfer.getData("color");
-  //   const counter = e.dataTransfer.getData("counter");
-  //   const [prevRow, prevCol] = locations[color][parseInt(counter)];
-  //   setBoard(prevRow, prevCol, 0);
-  //   setBoard(row, col, color == "red" ? 1 : 2);
-  //   setLocation({ color, counter, row, col });
-  // };
-
-  // const allowDrop = e => {
-  //   e.preventDefault();
-  // };
 
   return (
     <div
       ref={drop}
-      // onDrop={drop}
-      // onDragOver={allowDrop}
       style={{
         ...style,
         backgroundColor:

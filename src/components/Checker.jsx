@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
 import { BoardContext } from "../context/BoardContext";
-import { DragPreviewImage, useDrag } from "react-dnd";
+import { useDrag } from "react-dnd";
 
 const Checker = ({
-  setPosition,
+  resetSquare,
   color,
   style,
   counter,
@@ -11,30 +11,19 @@ const Checker = ({
   col,
   showSquares
 }) => {
-  // const { board, setBoard } = useContext(BoardContext);
-  const [{ isDragging }, drag, preview] = useDrag({
-    item: { type: "checker" },
+  var started = false;
+
+  const [{ isDragging }, drag] = useDrag({
+    item: { type: "checker", color, row, col },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
-    })
+    }),
+    begin: monitor => showSquares({ color, counter, col, row }),
+    end: monitor => resetSquare({ row, col })
   });
-
-  // const drag = e => {
-  //   e.dataTransfer.setData("transfer", e.target.id);
-  //   e.dataTransfer.setData("color", color);
-  //   e.dataTransfer.setData("counter", counter);
-  //   showSquares({ color, counter });
-  // };
-
-  // const noAllowDrop = e => {
-  //   e.stopPropagation();
-  // };
 
   return (
     <div
-      // draggable="true"
-      // onDragStart={drag}
-      // onDragOver={noAllowDrop}
       ref={drag}
       style={{
         ...style,
