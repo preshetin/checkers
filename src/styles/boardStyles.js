@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const BoardGrid = styled.div`
+export const BoardGrid = styled.div `
   display: grid;
   grid-template-columns: repeat(8, 12vmin);
   grid-template-rows: repeat(8, 12vmin);

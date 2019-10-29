@@ -9,14 +9,15 @@ const Checker = ({
   row,
   col,
   showSquares,
-  currMove
+  currMove,
+  king
 }) => {
   const [{ isDragging }, drag] = useDrag({
-    item: { type: "checker"},
+    item: { type: "checker" },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
-    begin: monitor => showSquares({ color, col, row }),
+    begin: monitor => showSquares({ color, col, row, king }),
     end: monitor => resetHighlighted()
   });
   return (
@@ -28,7 +29,23 @@ const Checker = ({
         opacity: isDragging ? 0.5 : 1
       }}
       id={[color, counter]}
-    ></div>
+    >
+      <div
+        style={{
+          fontFamily: "Arial Black",
+          fontSize: "1em",
+          color: "white",
+          textAlign: "center",
+          display: "block",
+          marginLeft: "auto",
+          marginRight: "auto",
+          backgroundColor: "turqoise",
+          width: "100%"
+        }}
+      >
+        {king ? "K" : ""}
+      </div>
+    </div>
   );
 };
 export default Checker;
