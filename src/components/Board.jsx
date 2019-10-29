@@ -118,7 +118,8 @@ class Board extends React.Component {
         startCol: this.state.selectedCol,
         endRow: row,
         endCol: col,
-        color: this.state.selectedColor
+        color: this.state.selectedColor,
+        king: this.state.selectedIsKing
       });
       capturedPieces.forEach(piece => {
         [row, col] = piece;
@@ -250,22 +251,32 @@ class Board extends React.Component {
     return moves;
   };
 
-  getCaptured = ({ startRow, startCol, endRow, endCol, color }) => {
-    const direction = endRow > startRow ? 1 : -1;
-    const oponnent = color == "black" ? 1 : 2;
+  getCaptured = ({ startRow, startCol, endRow, endCol, color, king }) => {
+    var rows = color == "black" ? [-1] : [1];
+    if (king) {
+      rows = [1, -1];
+    }
+    const oponnents = color == "black" ? [1, 3] : [2, 4];
     var ans = [];
     var found = false;
-    const dfsUtil = (row, col, direction, captured) => {
-      const jumps = [[direction, 1], [direction, -1]];
+    const seen = new Set();
+    const dfsUtil = (row, col, rows, captured) => {
+      seen.add(row * 8 + col);
+      const jumps = [];
+      rows.forEach(row => {
+        jumps.push([row, 1]);
+        jumps.push([row, -1]);
+      });
       jumps.forEach(jumped => {
         const [r, c] = jumped;
         const [jRow, jCol] = [row + r, col + c];
         const [lRow, lCol] = [row + r * 2, col + c * 2];
         if (
           this.isInBounds(jRow, jCol) &&
-          this.state.board[jRow][jCol] == oponnent
+          oponnents.includes(this.state.board[jRow][jCol])
         ) {
           if (
+            !seen.has(lRow * 8 + lCol) &&
             this.isInBounds(lRow, lCol) &&
             this.state.board[lRow][lCol] == 0
           ) {
@@ -278,7 +289,7 @@ class Board extends React.Component {
               found = true;
               return;
             }
-            dfsUtil(lRow, lCol, direction, captured.slice());
+            dfsUtil(lRow, lCol, rows, captured.slice());
             if (found == true) {
               return;
             }
@@ -287,7 +298,7 @@ class Board extends React.Component {
         }
       });
     };
-    dfsUtil(startRow, startCol, direction, []);
+    dfsUtil(startRow, startCol, rows, []);
     return ans;
   };
 
