@@ -44,20 +44,20 @@ class Board extends React.Component {
   makeAutoMove = () => {
     const color = "red"
     const b = this.state.board
-    var maxMoveLength=0
-    var maxMove=null
-    var maxStartRow=null
-    var maxStartCol=null
-    for (let row = 0; row<b.length; row++){
-      for (let col = 0; col<b[0].length; col++){
-        if (b[row][ col ] ==1) {
+    var maxMoveLength = 0
+    var maxMove = null
+    var maxStartRow = null
+    var maxStartCol = null
+    for (let row = 0; row < b.length; row++) {
+      for (let col = 0; col < b[0].length; col++) {
+        if (b[row][col] == 1) {
           const moves = this.getMoves(color, row, col);
-          moves.push(... this.getJumps(color, row, col))
+          moves.push(...this.getJumps(color, row, col))
           moves.forEach(
-            move=>{
-              const [r,c]=move
-              const length = Math.abs(row-r)+Math.abs(col-c)
-              if ( length > maxMoveLength ){
+            move => {
+              const [r, c] = move
+              const length = Math.abs(row - r) + Math.abs(col - c)
+              if (length > maxMoveLength) {
                 maxMove = move
                 maxMoveLength = length
                 maxStartRow = row
@@ -70,15 +70,15 @@ class Board extends React.Component {
     }
     this.setLocation({ color, row: maxStartRow, col: maxStartCol })
     if (maxMove) {
-      const [row,col]=maxMove
-      this.moveCurr({row,col})
-      this.resetSquare({ row: maxStartRow, col:  maxStartCol})
+      const [row, col] = maxMove
+      this.moveCurr({ row, col })
+      this.resetSquare({ row: maxStartRow, col: maxStartCol })
       this.switchTurns()
     }
   }
 
-  switchTurns = ()=>{
-    if (this.state.currMove=="black"){
+  switchTurns = () => {
+    if (this.state.currMove == "black") {
       this.setState({
         currMove: "red"
       })
@@ -100,20 +100,20 @@ class Board extends React.Component {
       newArray[i] = this.state.board[i].slice();
     }
     newArray[row][col] = val;
-    if (Math.abs(row - this.state.selectedRow)>1) {
+    if (Math.abs(row - this.state.selectedRow) > 1) {
       const capturedPieces = this.getCaptured({
         startRow: this.state.selectedRow,
         startCol: this.state.selectedCol,
-        endRow:row,
+        endRow: row,
         endCol: col,
         color: this.state.selectedColor
-      }) 
+      })
       capturedPieces.forEach(piece => {
-        [row,col]=piece
+        [row, col] = piece
         newArray[row][col] = 0
       }
-    )
-  }
+      )
+    }
     this.setState({
       board: newArray
     });
@@ -143,12 +143,12 @@ class Board extends React.Component {
     this.setBoard({ val: 0, row: this.state.selectedRow, col: this.state.selectedCol });
   };
 
-  resetHiglighted = () =>{
+  resetHiglighted = () => {
     this.setState({ highlighted: makeHighlighted() });
   }
 
   showSquares = ({ color, col, row }) => {
-    if (this.state.currMove!=color){
+    if (this.state.currMove != color) {
       return
     }
     this.setLocation({ color, row, col });
@@ -156,7 +156,7 @@ class Board extends React.Component {
     for (var i = 0; i < this.state.highlighted.length; i++)
       newArray[i] = this.state.highlighted[i].slice();
     const moves = this.getMoves(color, row, col);
-    moves.push(... this.getJumps(color,row,col))
+    moves.push(...this.getJumps(color, row, col))
     moves.forEach(move => {
       const [r, c] = move;
       newArray[r][c] = 1;
@@ -164,19 +164,19 @@ class Board extends React.Component {
     this.setState({ highlighted: newArray });
   };
 
-  isInBounds = (r,c) => (
+  isInBounds = (r, c) => (
     r >= 0 && c >= 0 && r < 8 && c < 8
-  ) 
-  
+  )
+
   getMoves = (color, row, col) => {
     col = parseInt(col);
     row = parseInt(row);
     var moves = [];
-    const direction = color == "black"? -1 :1
+    const direction = color == "black" ? -1 : 1
     const rows = [-1, 1];
     rows.forEach(item => {
-      if (this.isInBounds(row + direction,col+item)) {
-        if (this.state.board[row + direction][col + item]==0){
+      if (this.isInBounds(row + direction, col + item)) {
+        if (this.state.board[row + direction][col + item] == 0) {
           moves.push([row + direction, col + item]);
         }
       }
@@ -189,53 +189,53 @@ class Board extends React.Component {
     row = parseInt(row);
     const direction = (color == "black") ? -1 : 1
     const oponnent = (color == "black") ? 1 : 2
-    const moves=[]
-    const dfsUtil=(row,col,direction)=>{
-      const jumps = [[direction,1],[direction,-1]]
+    const moves = []
+    const dfsUtil = (row, col, direction) => {
+      const jumps = [[direction, 1], [direction, -1]]
       jumps.forEach(jumped => {
-        const [r,c]=jumped
-        const [jRow,jCol]=[row+r,col+c]
-        const [lRow,lCol]=[row+r*2,col+c*2]
-        if (this.isInBounds(jRow,jCol) && this.state.board[jRow][jCol]==oponnent) {
-          if (this.isInBounds(lRow,lCol) && this.state.board[lRow][lCol]==0) {
+        const [r, c] = jumped
+        const [jRow, jCol] = [row + r, col + c]
+        const [lRow, lCol] = [row + r * 2, col + c * 2]
+        if (this.isInBounds(jRow, jCol) && this.state.board[jRow][jCol] == oponnent) {
+          if (this.isInBounds(lRow, lCol) && this.state.board[lRow][lCol] == 0) {
             moves.push([lRow, lCol]);
-            dfsUtil(lRow,lCol,direction)
+            dfsUtil(lRow, lCol, direction)
           }
         }
       })
     }
-    dfsUtil(row,col,direction)
+    dfsUtil(row, col, direction)
     return moves;
   };
 
-  getCaptured = ({startRow,startCol,endRow,endCol,color}) => {
-    const direction=endRow>startRow ? 1: -1
+  getCaptured = ({ startRow, startCol, endRow, endCol, color }) => {
+    const direction = endRow > startRow ? 1 : -1
     const oponnent = (color == "black") ? 1 : 2
     var ans = []
     var found = false
-    const dfsUtil=(row,col,direction,captured)=>{
-      const jumps = [[direction,1],[direction,-1]]
+    const dfsUtil = (row, col, direction, captured) => {
+      const jumps = [[direction, 1], [direction, -1]]
       jumps.forEach(jumped => {
-        const [r,c]=jumped
-        const [jRow,jCol]=[row+r,col+c]
-        const [lRow,lCol]=[row+r*2,col+c*2]
-        if (this.isInBounds(jRow,jCol) && this.state.board[jRow][jCol]==oponnent) {
-          if (this.isInBounds(lRow,lCol) && this.state.board[lRow][lCol]==0) {
-            if (found==true) {return}
+        const [r, c] = jumped
+        const [jRow, jCol] = [row + r, col + c]
+        const [lRow, lCol] = [row + r * 2, col + c * 2]
+        if (this.isInBounds(jRow, jCol) && this.state.board[jRow][jCol] == oponnent) {
+          if (this.isInBounds(lRow, lCol) && this.state.board[lRow][lCol] == 0) {
+            if (found == true) { return }
             captured.push([jRow, jCol]);
-            if (lRow==endRow && lCol==endCol) {
+            if (lRow == endRow && lCol == endCol) {
               ans = captured.slice()
               found = true
               return
             }
-            dfsUtil(lRow,lCol,direction,captured.slice())
-            if (found==true) {return}
+            dfsUtil(lRow, lCol, direction, captured.slice())
+            if (found == true) { return }
             captured.pop()
           }
         }
       })
     }
-    dfsUtil(startRow,startCol,direction,[])
+    dfsUtil(startRow, startCol, direction, [])
     return ans
   }
 
@@ -294,4 +294,4 @@ class Board extends React.Component {
   }
 }
 
-export default Board;
+export default Board

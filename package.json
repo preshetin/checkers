@@ -2,6 +2,7 @@
   "name": "react-checkers",
   "version": "0.1.0",
   "private": true,
+  "hompage": "https://stepseazy.github.io/checkers",
   "dependencies": {
     "react": "^16.11.0",
     "react-dnd": "^9.4.0",
@@ -11,9 +12,11 @@
     "styled-components": "^4.4.0"
   },
   "scripts": {
+    "predeploy": "npm run build",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -29,5 +32,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^2.1.1"
   }
 }
