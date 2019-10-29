@@ -59,7 +59,7 @@ class Board extends React.Component {
           // eslint-disable-next-line no-loop-func
           moves.forEach(move => {
             const [r, c] = move;
-            const length = Math.abs(row - r) + Math.abs(col - c);
+            const length = (row - r) * (row - r) + (col - c) * (col - c)
             if (length > maxMoveLength) {
               maxMove = move;
               maxMoveLength = length;
