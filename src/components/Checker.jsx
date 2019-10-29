@@ -16,7 +16,7 @@ const Checker = ({
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
-    begin: monitor => showSquares({ color, counter, col, row }),
+    begin: monitor => showSquares({ color, col, row }),
     end: monitor => resetHighlighted()
   });
   return (

@@ -26,7 +26,6 @@ const PlayableSquare = ({
       canDrop: !!monitor.canDrop()
     })
   });
-
   return (
     <div
       ref={drop}
