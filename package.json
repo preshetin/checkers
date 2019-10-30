@@ -2,7 +2,7 @@
   "name": "react-checkers",
   "version": "0.1.0",
   "private": true,
-  "hompage": "https://stepseazy.github.io/checkers",
+  "homepage": "https://preshetin.github.io/checkers",
   "dependencies": {
     "react": "^16.11.0",
     "react-dnd": "^9.4.0",
